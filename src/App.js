@@ -21,6 +21,9 @@ const App = () => {
 
   const [initialLoading, setInitialLoading] = useState(true);
 
+  const [updtMode, setUpdtMode] = useState(false);
+  const [updtModeTransaction, setUpdtModeTransaction] = useState("");
+
   const summary = () => {
     let Intotal = 0;
     let Extotal = 0;
@@ -67,7 +70,7 @@ const App = () => {
         const key = dataKeys[i];
         const value = dataValues[i];
 
-        value["id"] = key;
+        // value["id"] = key;
         transacts.push(value);
 
         // transacts.reverse();
@@ -163,16 +166,30 @@ const App = () => {
   };
 
   const updateTransaction = (id, type) => {
-    const data = [];
+    let data;
 
     for (let i = 0; i < transactions.length; i++) {
       const element = transactions[i];
       // console.log(element);
 
       if (element.id === id) {
-        console.log(element);
+        data = element;
+
+        if (type === "income") {
+          setInTitle(data.title);
+          setInAmount(data.amount);
+        }
+
+        if (type === "expense") {
+          setExTitle(data.title);
+          setExAmount(data.amount);
+        }
+
+        setUpdtMode(true);
+        setUpdtModeTransaction(type);
       }
     }
+    // }
 
     // let response = await fetch(url + `/${transactionId}.json`, {
     //   method: "PATCH",
@@ -181,6 +198,19 @@ const App = () => {
     // let resData = await response.json();
 
     // console.log(id, type);
+  };
+
+  const cancelBtnFunc = () => {
+    if (updtMode && updtModeTransaction === "income") {
+      const form = document.querySelector("#income-form");
+      form.reset();
+      console.log(form);
+    }
+
+    if (updtMode && updtModeTransaction === "expense") {
+      const form = document.querySelector("#expense-form");
+      console.log(form);
+    }
   };
 
   return initialLoading ? (
@@ -206,8 +236,6 @@ const App = () => {
               {/* Income */}
               <div className="mt-3">
                 <FormStructure
-                  submitForm={(e) => writeData("income", e)}
-                  formBorderColor="border border-success"
                   formComponent={
                     <>
                       <FormField
@@ -227,16 +255,25 @@ const App = () => {
                       />
                     </>
                   }
-                  submitText="Add Income"
-                  btnClass="success"
+                  formBorderColor="border border-success"
+                  submitFormFunc={(e) => writeData("income", e)}
+                  formId="income-form"
+                  primaryBtnId="cta-income-form"
+                  primaryBtnClass="success"
+                  primaryBtnText={
+                    updtMode && updtModeTransaction === "income"
+                      ? "Update Income"
+                      : "Add Income"
+                  }
+                  cancelBtnId="close-income-form"
+                  cancelBtnFunc={cancelBtnFunc}
+                  showCancelBtn={updtMode && updtModeTransaction === "income"}
                 />
               </div>
 
               {/* Expense */}
               <div className="mt-3">
                 <FormStructure
-                  submitForm={(e) => writeData("expense", e)}
-                  formBorderColor="border border-danger"
                   formComponent={
                     <>
                       <FormField
@@ -256,8 +293,19 @@ const App = () => {
                       />
                     </>
                   }
-                  submitText="Add Expense"
-                  btnClass="danger"
+                  formBorderColor="border border-danger"
+                  submitFormFunc={(e) => writeData("expense", e)}
+                  formId="expense-form"
+                  primaryBtnId="cta-expense-form"
+                  primaryBtnClass="danger"
+                  primaryBtnText={
+                    updtMode && updtModeTransaction === "expense"
+                      ? "Update Expense"
+                      : "Add Expense"
+                  }
+                  cancelBtnId="close-expense-form"
+                  cancelBtnFunc={cancelBtnFunc}
+                  showCancelBtn={updtMode && updtModeTransaction === "expense"}
                 />
               </div>
             </div>
